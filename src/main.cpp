@@ -22,6 +22,7 @@
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+#include <Adafruit_I2CDevice.h>
 
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
@@ -32,7 +33,7 @@
 // On an arduino MEGA 2560: 20(SDA), 21(SCL)
 // On an arduino LEONARDO:   2(SDA),  3(SCL), ...
 #define OLED_RESET     4 // Reset pin # (or -1 if sharing Arduino reset pin)
-#define SCREEN_ADDRESS 0x3D ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
+#define SCREEN_ADDRESS 0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 #define NUMFLAKES     10 // Number of snowflakes in the animation example
@@ -352,9 +353,10 @@ void testanimate(const uint8_t *bitmap, uint8_t w, uint8_t h) {
 #pragma endregion
 
 void setup() {
+  Wire.begin();
   Serial.begin(9600);
 
-  // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
+ /* // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
   if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
     Serial.println(F("SSD1306 allocation failed"));
     for(;;); // Don't proceed, loop forever
@@ -413,7 +415,19 @@ void setup() {
   delay(1000);
 
   testanimate(logo_bmp, LOGO_WIDTH, LOGO_HEIGHT); // Animate bitmaps
-}
 
+  */
+ pinMode(13, OUTPUT);
+}
+uint64_t looptime = 0;
 void loop() {
+  if(looptime + 1000 < millis() ) {
+    looptime = millis();
+    Wire.beginTransmission(13);
+    Wire.write("hello world", 11);
+    Wire.endTransmission();
+    digitalWrite(13, HIGH);
+    delay(500);
+    digitalWrite(13,LOW);
+  }
 }
